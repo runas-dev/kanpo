@@ -1,0 +1,346 @@
+<title>星読みタロット</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@500;700&family=Shippori+Mincho:wght@400;600;800&display=swap">
+<style>
+/* Layout: one centered table of cards on a night-sky cloth, controls above, reading below */
+:root {
+  --night: #141a2e;      /* table cloth */
+  --night-2: #1c2440;    /* raised surfaces */
+  --ink: #e9e3d3;        /* text on night */
+  --muted: #a39f95;
+  --brass: #c9a35a;      /* accent */
+  --paper: #f3ead6;      /* card face */
+  --paper-ink: #2a2233;
+  --rev: #c97a6a;        /* reversed marker */
+  --f-display: "Cormorant Unicase", "Times New Roman", serif;
+  --f-body: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% -10%, #26305a 0%, transparent 60%),
+    var(--night);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 28px;
+}
+header { text-align: center; display: grid; gap: 4px; }
+header .eyebrow {
+  font-family: var(--f-display);
+  letter-spacing: .3em;
+  color: var(--brass);
+  font-size: 13px;
+}
+h1 {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 40px);
+  letter-spacing: .12em;
+  text-wrap: balance;
+}
+header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.controls {
+  display: flex; flex-wrap: wrap; gap: 10px 16px;
+  justify-content: center; align-items: center;
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid color-mix(in srgb, var(--brass) 50%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.seg button {
+  font: inherit; font-size: 14px;
+  background: transparent; color: var(--ink);
+  border: 0; padding: 8px 18px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--brass); color: var(--night); font-weight: 600; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.toggle input { accent-color: var(--brass); width: 16px; height: 16px; }
+.btn {
+  font: inherit; font-size: 15px; font-weight: 600;
+  background: var(--brass); color: var(--night);
+  border: 0; border-radius: 999px;
+  padding: 10px 26px; cursor: pointer;
+  letter-spacing: .08em;
+}
+.btn.ghost { background: transparent; color: var(--brass); border: 1px solid var(--brass); }
+button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
+  outline: 2px solid var(--brass); outline-offset: 3px;
+}
+
+/* table */
+.table {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 20px;
+  padding-block: 8px;
+}
+.slot { display: grid; gap: 10px; justify-items: center; width: clamp(96px, 26vw, 190px); }
+.slot .pos {
+  font-size: 13px; letter-spacing: .2em; color: var(--brass);
+}
+.card {
+  width: 100%;
+  aspect-ratio: 7 / 12;
+  max-width: 100%;
+  perspective: 1000px;
+  cursor: pointer;
+  background: none; border: 0; padding: 0;
+  border-radius: 10px;
+}
+.card-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform .8s cubic-bezier(.2,.7,.2,1);
+  transform-style: preserve-3d;
+}
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 10px 24px rgb(0 0 0 / .45);
+}
+.back {
+  background:
+    radial-gradient(circle at 50% 50%, var(--brass) 0 6%, transparent 6.5%),
+    radial-gradient(circle at 50% 50%, transparent 0 22%, color-mix(in srgb, var(--brass) 70%, transparent) 22.5% 23.5%, transparent 24%),
+    repeating-linear-gradient(45deg, transparent 0 9px, color-mix(in srgb, var(--brass) 18%, transparent) 9px 10px),
+    repeating-linear-gradient(-45deg, transparent 0 9px, color-mix(in srgb, var(--brass) 18%, transparent) 9px 10px),
+    #232c52;
+  border: 2px solid var(--brass);
+  outline: 1px solid color-mix(in srgb, var(--brass) 50%, transparent);
+  outline-offset: -8px;
+}
+.card:not(.flipped):hover .card-inner { transform: translateY(-6px); }
+.front {
+  transform: rotateY(180deg);
+  background: var(--paper);
+  color: var(--paper-ink);
+  border: 2px solid var(--brass);
+  padding: 8%;
+}
+.front-body {
+  height: 100%;
+  display: grid; grid-template-rows: auto 1fr auto; justify-items: center; align-items: center;
+  border: 1px solid color-mix(in srgb, var(--paper-ink) 35%, transparent);
+  border-radius: 6px;
+  padding: 6% 4%;
+  transition: transform .3s;
+}
+.card.reversed .front-body { transform: rotate(180deg); }
+.numeral { font-family: var(--f-display); font-weight: 700; font-size: clamp(14px, 3.4vw, 22px); letter-spacing: .1em; }
+.glyph {
+  font-size: clamp(36px, 10vw, 76px);
+  line-height: 1;
+  color: #8a6420;
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols", "DejaVu Sans", serif;
+}
+.names { text-align: center; line-height: 1.3; }
+.names .ja { font-weight: 800; font-size: clamp(12px, 3vw, 18px); letter-spacing: .1em; }
+.names .en { font-family: var(--f-display); font-size: clamp(9px, 2vw, 13px); letter-spacing: .12em; color: #6b5f6e; }
+
+.hint { text-align: center; color: var(--muted); font-size: 14px; margin: 0; }
+
+/* reading */
+.reading { display: grid; gap: 14px; max-width: 720px; width: 100%; margin: 0 auto; }
+.reading h2 {
+  margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .15em; text-align: center; color: var(--brass);
+}
+.entry {
+  background: var(--night-2);
+  border: 1px solid color-mix(in srgb, var(--brass) 25%, transparent);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: grid; gap: 6px;
+  animation: rise .5s ease-out;
+}
+.entry .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.entry .pos { font-size: 12px; letter-spacing: .2em; color: var(--brass); }
+.entry .title { font-weight: 800; font-size: 18px; }
+.pill {
+  font-size: 12px; padding: 1px 10px; border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.pill.up { color: var(--brass); }
+.pill.down { color: var(--rev); }
+.entry .kw { color: var(--muted); font-size: 14px; }
+.entry p { margin: 0; }
+@keyframes rise { from { transform: translateY(6px); opacity: .4; } to { transform: none; opacity: 1; } }
+
+footer { text-align: center; color: var(--muted); font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-inner, .front-body { transition: none; }
+  .entry { animation: none; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">MAJOR ARCANA</div>
+    <h1>星読みタロット</h1>
+    <p>大アルカナ22枚から、心に浮かぶ問いを思い描いてカードを引きます</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="スプレッド">
+      <button type="button" id="spread-1" data-n="1" aria-pressed="false">1枚引き</button>
+      <button type="button" id="spread-3" data-n="3" aria-pressed="true">3枚引き</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="use-reversed" checked> 逆位置あり</label>
+    <button type="button" class="btn" id="draw">シャッフルして引く</button>
+    <button type="button" class="btn ghost" id="reveal-all">すべてめくる</button>
+  </div>
+
+  <div class="table" id="table" aria-live="polite"></div>
+  <p class="hint" id="hint">カードをタップしてめくってください</p>
+
+  <section class="reading" id="reading" aria-label="リーディング"></section>
+
+  <footer>占いの結果は、考えを整えるためのヒントとしてお楽しみください</footer>
+</div>
+
+<script>
+const CARDS = [
+  ["0","愚者","The Fool","○","自由・新しい始まり・冒険","無計画・軽率・現実逃避","まっさらな気持ちで一歩を踏み出すとき。結果を恐れず、好奇心に従ってみましょう。","勢いだけで動くと足元をすくわれます。計画を少しだけ立ててから進みましょう。"],
+  ["I","魔術師","The Magician","∞","創造・意志・才能の発揮","空回り・準備不足・迷い","必要な道具はもう手の中にあります。思い描いたことを形にし始めましょう。","力はあるのに方向が定まっていません。目的をひとつに絞ると流れが戻ります。"],
+  ["II","女教皇","The High Priestess","☾","直感・知性・静けさ","神経質・頑なさ・隠しごと","答えは静かな場所で見つかります。焦らず、内なる声に耳を澄ませて。","考えすぎて心が固くなっています。完璧を求めず、人に頼ることも大切です。"],
+  ["III","女帝","The Empress","♀","豊かさ・愛情・実り","過保護・浪費・停滞","育ててきたものが実を結ぶ時期。自分も周りも、たっぷり慈しみましょう。","与えすぎ、甘やかしすぎに注意。満たされすぎると成長が止まります。"],
+  ["IV","皇帝","The Emperor","♃","安定・責任・リーダーシップ","独断・支配・融通のなさ","基盤を固め、自分が舵を取るとき。責任を引き受けるほど信頼が集まります。","力で押し切ろうとしていませんか。周りの声を聞く余裕を持ちましょう。"],
+  ["V","教皇","The Hierophant","✠","信頼・教え・伝統","形式主義・孤立・束縛","信頼できる人の助言や、昔ながらのやり方に助けられます。","決まりごとに縛られすぎています。自分の頭で考え直してみましょう。"],
+  ["VI","恋人","The Lovers","♡","選択・調和・結びつき","迷い・不一致・誘惑","心がときめく方を選んで大丈夫。人とのつながりが力になります。","選べないまま時間が過ぎています。本当に大切なものは何か見つめ直して。"],
+  ["VII","戦車","The Chariot","⇑","前進・勝利・行動力","暴走・挫折・方向喪失","迷わず進めば道は開けます。意志の強さが勝利を呼び込みます。","勢いが空回りしています。いったん止まって行き先を確かめましょう。"],
+  ["VIII","力","Strength","♌","勇気・忍耐・内なる強さ","自信喪失・弱気・甘え","優しさは強さです。焦らずじっくり向き合えば、困難も手なずけられます。","自分を信じきれていません。小さな成功を積み重ねて自信を取り戻して。"],
+  ["IX","隠者","The Hermit","✧","内省・探求・思慮深さ","孤立・閉鎖的・頑固","ひとりの時間が答えを照らします。急がず、自分の内側を探ってみて。","殻に閉じこもりすぎています。誰かに話すだけで視界が開けるかもしれません。"],
+  ["X","運命の輪","Wheel of Fortune","☸","転機・幸運・巡り合わせ","すれ違い・停滞・タイミングのずれ","流れが変わる瞬間です。巡ってきたチャンスは迷わずつかみましょう。","今は風向きが悪いだけ。無理に動かず、次の巡りを待つのも手です。"],
+  ["XI","正義","Justice","⚖","公正・均衡・正しい判断","不公平・偏り・優柔不断","感情と事実を分けて考えれば、正しい判断ができます。","どちらかに偏っています。もう一方の言い分にも耳を傾けてみて。"],
+  ["XII","吊るされた男","The Hanged Man","▽","試練・忍耐・視点の転換","徒労・自己犠牲・停滞","動けない時間にも意味があります。見方を変えると新しい答えが見えます。","報われない我慢を続けていませんか。手放す勇気も必要です。"],
+  ["XIII","死神","Death","♄","終わりと再生・変化","変化への抵抗・未練","ひとつの区切りが訪れます。終わりは新しい始まりの準備です。","終わったものにしがみついています。手放せば次の扉が開きます。"],
+  ["XIV","節制","Temperance","⧖","調和・節度・バランス","不安定・浪費・不調和","異なるものをうまく混ぜ合わせるとき。ほどよいペースが鍵です。","やりすぎ、または足りなさが目立ちます。生活のリズムを整えましょう。"],
+  ["XV","悪魔","The Devil","♑","誘惑・執着・束縛","解放・断ち切る・回復","わかっていてもやめられないものはありませんか。執着に気づくことが第一歩。","鎖がほどけ始めています。悪い習慣や関係から抜け出すチャンスです。"],
+  ["XVI","塔","The Tower","ϟ","崩壊・突然の変化・衝撃","緊迫・回避・ゆるやかな崩れ","思いがけない出来事が古い枠を壊します。崩れたあとに本当の土台が残ります。","問題を先送りしています。小さいうちに向き合えば大きな崩れは避けられます。"],
+  ["XVII","星","The Star","★","希望・ひらめき・癒し","失望・高望み・見通しの甘さ","静かな希望が灯っています。理想を信じて、少しずつ近づいていきましょう。","期待が大きすぎて疲れていませんか。足元の小さな光にも目を向けて。"],
+  ["XVIII","月","The Moon","☽","不安・曖昧さ・潜在意識","霧が晴れる・不安の解消","先が見えず不安なとき。思い込みと事実を分けて、慎重に進みましょう。","ぼんやりしていたことがはっきりしてきます。不安は少しずつ消えていきます。"],
+  ["XIX","太陽","The Sun","☉","成功・喜び・生命力","不調・延期・過信","明るいエネルギーに満ちています。素直に喜び、楽しむことが成功を呼びます。","少し曇っていますが、太陽は消えていません。無理せず、調子が戻るのを待って。"],
+  ["XX","審判","Judgement","⊕","復活・目覚め・決断","後悔・先延ばし・やり残し","眠っていた想いや可能性がよみがえります。呼びかけに応えるときです。","過去を悔やんで足が止まっています。今からでも遅くはありません。"],
+  ["XXI","世界","The World","◎","完成・達成・統合","未完成・中途半端・あと一歩","ひとつの物語が美しく完結します。達成を味わい、次の旅へ。","ゴールはすぐそこです。最後の仕上げを丁寧に終わらせましょう。"],
+].map(([num, ja, en, glyph, upKw, revKw, upMsg, revMsg]) => ({ num, ja, en, glyph, upKw, revKw, upMsg, revMsg }));
+
+const POSITIONS = { 1: ["今日のカード"], 3: ["過去", "現在", "未来"] };
+
+const table = document.getElementById("table");
+const reading = document.getElementById("reading");
+const hint = document.getElementById("hint");
+const useReversed = document.getElementById("use-reversed");
+let count = 3;
+let drawn = [];
+
+function load(key, fallback) { try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } }
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const buf = new Uint32Array(1); crypto.getRandomValues(buf);
+    const j = buf[0] % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function deal() {
+  const pick = shuffle(CARDS).slice(0, count);
+  drawn = pick.map((card, i) => ({
+    card,
+    pos: POSITIONS[count][i],
+    reversed: useReversed.checked && (crypto.getRandomValues(new Uint8Array(1))[0] & 1) === 1,
+    open: false,
+  }));
+  table.innerHTML = "";
+  reading.innerHTML = "";
+  drawn.forEach((d, i) => {
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.innerHTML = `
+      <span class="pos">${d.pos}</span>
+      <button type="button" class="card${d.reversed ? " reversed" : ""}" id="card-${i}" aria-label="${d.pos}のカードをめくる">
+        <span class="card-inner">
+          <span class="face back"></span>
+          <span class="face front"><span class="front-body">
+            <span class="numeral">${d.card.num}</span>
+            <span class="glyph">${d.card.glyph}︎</span>
+            <span class="names"><span class="ja">${d.card.ja}</span><br><span class="en">${d.card.en}</span></span>
+          </span></span>
+        </span>
+      </button>`;
+    slot.querySelector(".card").addEventListener("click", () => reveal(i));
+    table.appendChild(slot);
+  });
+  hint.hidden = false;
+  hint.textContent = "カードをタップしてめくってください";
+}
+
+function reveal(i) {
+  const d = drawn[i];
+  if (d.open) return;
+  d.open = true;
+  const el = document.getElementById(`card-${i}`);
+  el.classList.add("flipped");
+  el.setAttribute("aria-label", `${d.pos}：${d.card.ja}（${d.reversed ? "逆位置" : "正位置"}）`);
+  renderReading();
+}
+
+function renderReading() {
+  const opened = drawn.filter(d => d.open);
+  hint.hidden = opened.length === drawn.length;
+  reading.innerHTML = opened.length ? `<h2>リーディング</h2>` : "";
+  drawn.forEach(d => {
+    if (!d.open) return;
+    const c = d.card;
+    const div = document.createElement("article");
+    div.className = "entry";
+    div.innerHTML = `
+      <div class="head">
+        <span class="pos">${d.pos}</span>
+        <span class="title">${c.num}　${c.ja}</span>
+        <span class="pill ${d.reversed ? "down" : "up"}">${d.reversed ? "逆位置" : "正位置"}</span>
+      </div>
+      <div class="kw">${d.reversed ? c.revKw : c.upKw}</div>
+      <p>${d.reversed ? c.revMsg : c.upMsg}</p>`;
+    reading.appendChild(div);
+  });
+}
+
+function setCount(n) {
+  count = n;
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === n)));
+  save("tarot-count", n);
+  deal();
+}
+
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => setCount(+b.dataset.n)));
+document.getElementById("draw").addEventListener("click", deal);
+document.getElementById("reveal-all").addEventListener("click", () => {
+  drawn.forEach((_, i) => setTimeout(() => reveal(i), i * 250));
+});
+useReversed.checked = load("tarot-reversed", true);
+useReversed.addEventListener("change", () => { save("tarot-reversed", useReversed.checked); deal(); });
+
+setCount(load("tarot-count", 3) === 1 ? 1 : 3);
+</script>
