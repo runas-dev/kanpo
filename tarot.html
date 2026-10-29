@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@500;700&family=Shippori+Mincho:wght@400;600;800&display=swap">
 <style>
-/* Layout: one centered table of cards on a night-sky cloth, controls above, reading below */
+/* Layout: question card on top, controls, a table of cards on a night-sky cloth, then the reading */
 :root {
   --night: #141a2e;      /* table cloth */
   --night-2: #1c2440;    /* raised surfaces */
@@ -12,7 +12,12 @@
   --brass: #c9a35a;      /* accent */
   --paper: #f3ead6;      /* card face */
   --paper-ink: #2a2233;
-  --rev: #c97a6a;        /* reversed marker */
+  --rev: #d48a79;        /* reversed marker */
+  --wands: #a8552a;
+  --cups: #2f6b8a;
+  --swords: #50546b;
+  --pentacles: #7a6a1e;
+  --major: #8a6420;
   --f-display: "Cormorant Unicase", "Times New Roman", serif;
   --f-body: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
   color-scheme: dark;
@@ -54,6 +59,27 @@ h1 {
 }
 header p { margin: 0; color: var(--muted); font-size: 14px; }
 
+/* question */
+.ask {
+  max-width: 720px; width: 100%; margin: 0 auto;
+  display: grid; gap: 8px;
+}
+.ask label { font-size: 14px; letter-spacing: .15em; color: var(--brass); }
+.ask textarea {
+  width: 100%;
+  min-height: 84px;
+  resize: vertical;
+  font: inherit; font-size: 15px; line-height: 1.7;
+  color: var(--ink);
+  background: var(--night-2);
+  border: 1px solid color-mix(in srgb, var(--brass) 35%, transparent);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.ask textarea::placeholder { color: color-mix(in srgb, var(--muted) 75%, transparent); }
+.ask textarea:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.ask .note { font-size: 12px; color: var(--muted); margin: 0; }
+
 .controls {
   display: flex; flex-wrap: wrap; gap: 10px 16px;
   justify-content: center; align-items: center;
@@ -70,6 +96,7 @@ header p { margin: 0; color: var(--muted); font-size: 14px; }
   border: 0; padding: 8px 18px; cursor: pointer;
 }
 .seg button[aria-pressed="true"] { background: var(--brass); color: var(--night); font-weight: 600; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; }
 .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; }
 .toggle input { accent-color: var(--brass); width: 16px; height: 16px; }
 .btn {
@@ -80,9 +107,11 @@ header p { margin: 0; color: var(--muted); font-size: 14px; }
   letter-spacing: .08em;
 }
 .btn.ghost { background: transparent; color: var(--brass); border: 1px solid var(--brass); }
+.btn:disabled { opacity: .5; cursor: default; }
 button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
   outline: 2px solid var(--brass); outline-offset: 3px;
 }
+.deck-count { text-align: center; font-size: 12px; color: var(--muted); margin: -16px 0 0; }
 
 /* table */
 .table {
@@ -91,9 +120,7 @@ button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
   padding-block: 8px;
 }
 .slot { display: grid; gap: 10px; justify-items: center; width: clamp(96px, 26vw, 190px); }
-.slot .pos {
-  font-size: 13px; letter-spacing: .2em; color: var(--brass);
-}
+.slot .pos { font-size: 13px; letter-spacing: .2em; color: var(--brass); }
 .card {
   width: 100%;
   aspect-ratio: 7 / 12;
@@ -104,7 +131,7 @@ button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
   border-radius: 10px;
 }
 .card-inner {
-  position: relative; width: 100%; height: 100%;
+  position: relative; display: block; width: 100%; height: 100%;
   transition: transform .8s cubic-bezier(.2,.7,.2,1);
   transform-style: preserve-3d;
 }
@@ -144,16 +171,22 @@ button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
   transition: transform .3s;
 }
 .card.reversed .front-body { transform: rotate(180deg); }
-.numeral { font-family: var(--f-display); font-weight: 700; font-size: clamp(14px, 3.4vw, 22px); letter-spacing: .1em; }
+.numeral { font-family: var(--f-display); font-weight: 700; font-size: clamp(12px, 3vw, 20px); letter-spacing: .1em; }
 .glyph {
   font-size: clamp(36px, 10vw, 76px);
   line-height: 1;
-  color: #8a6420;
+  color: var(--major);
   font-family: "Segoe UI Symbol", "Noto Sans Symbols", "DejaVu Sans", serif;
+  display: grid; place-items: center;
 }
+.glyph svg { width: clamp(30px, 8vw, 62px); height: auto; }
+.suit-wands .glyph { color: var(--wands); }
+.suit-cups .glyph { color: var(--cups); }
+.suit-swords .glyph { color: var(--swords); }
+.suit-pentacles .glyph { color: var(--pentacles); }
 .names { text-align: center; line-height: 1.3; }
-.names .ja { font-weight: 800; font-size: clamp(12px, 3vw, 18px); letter-spacing: .1em; }
-.names .en { font-family: var(--f-display); font-size: clamp(9px, 2vw, 13px); letter-spacing: .12em; color: #6b5f6e; }
+.names .ja { font-weight: 800; font-size: clamp(11px, 2.8vw, 17px); letter-spacing: .06em; }
+.names .en { font-family: var(--f-display); font-size: clamp(8px, 1.9vw, 12px); letter-spacing: .1em; color: #6b5f6e; }
 
 .hint { text-align: center; color: var(--muted); font-size: 14px; margin: 0; }
 
@@ -181,32 +214,65 @@ button:focus-visible, .toggle input:focus-visible, .card:focus-visible {
 .pill.down { color: var(--rev); }
 .entry .kw { color: var(--muted); font-size: 14px; }
 .entry p { margin: 0; }
+
+.oracle {
+  border: 1px solid var(--brass);
+  border-radius: 10px;
+  padding: 20px 20px 22px;
+  background: color-mix(in srgb, var(--brass) 7%, var(--night));
+  display: grid; gap: 12px;
+}
+.oracle .q {
+  margin: 0; font-size: 14px; color: var(--muted);
+  border-left: 2px solid color-mix(in srgb, var(--brass) 60%, transparent);
+  padding-left: 12px;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.oracle .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.oracle .status { font-size: 13px; color: var(--muted); }
+.oracle .text { display: grid; gap: 8px; overflow-wrap: anywhere; }
+.oracle .text p { margin: 0; }
+.oracle .text .h { color: var(--brass); font-weight: 600; letter-spacing: .08em; margin-top: 6px; }
+.oracle .label { font-size: 12px; letter-spacing: .2em; color: var(--brass); }
 @keyframes rise { from { transform: translateY(6px); opacity: .4; } to { transform: none; opacity: 1; } }
+.dots::after { content: "…"; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
 
 footer { text-align: center; color: var(--muted); font-size: 12px; }
 
 @media (prefers-reduced-motion: reduce) {
   .card-inner, .front-body { transition: none; }
   .entry { animation: none; }
+  .dots::after { animation: none; }
 }
 </style>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">MAJOR ARCANA</div>
+    <div class="eyebrow">TAROT · 78 CARDS</div>
     <h1>星読みタロット</h1>
-    <p>大アルカナ22枚から、心に浮かぶ問いを思い描いてカードを引きます</p>
+    <p>悩みを心に描いて、78枚のカードから引いてみましょう</p>
   </header>
+
+  <div class="ask">
+    <label for="question">いまの悩みごと</label>
+    <textarea id="question" maxlength="600" placeholder="例：転職するか今の会社に残るか迷っています。どちらを選ぶと後悔が少ないでしょうか。"></textarea>
+    <p class="note">空欄のままでも引けます。書いた内容はこの画面の中だけで使われ、保存されません。</p>
+  </div>
 
   <div class="controls">
     <div class="seg" role="group" aria-label="スプレッド">
       <button type="button" id="spread-1" data-n="1" aria-pressed="false">1枚引き</button>
       <button type="button" id="spread-3" data-n="3" aria-pressed="true">3枚引き</button>
     </div>
-    <label class="toggle"><input type="checkbox" id="use-reversed" checked> 逆位置あり</label>
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="use-reversed" checked> 逆位置あり</label>
+      <label class="toggle"><input type="checkbox" id="use-minor" checked> 小アルカナを含める</label>
+    </div>
     <button type="button" class="btn" id="draw">シャッフルして引く</button>
     <button type="button" class="btn ghost" id="reveal-all">すべてめくる</button>
   </div>
+  <p class="deck-count" id="deck-count"></p>
 
   <div class="table" id="table" aria-live="polite"></div>
   <p class="hint" id="hint">カードをタップしてめくってください</p>
@@ -217,7 +283,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; }
 </div>
 
 <script>
-const CARDS = [
+const MAJOR = [
   ["0","愚者","The Fool","○","自由・新しい始まり・冒険","無計画・軽率・現実逃避","まっさらな気持ちで一歩を踏み出すとき。結果を恐れず、好奇心に従ってみましょう。","勢いだけで動くと足元をすくわれます。計画を少しだけ立ててから進みましょう。"],
   ["I","魔術師","The Magician","∞","創造・意志・才能の発揮","空回り・準備不足・迷い","必要な道具はもう手の中にあります。思い描いたことを形にし始めましょう。","力はあるのに方向が定まっていません。目的をひとつに絞ると流れが戻ります。"],
   ["II","女教皇","The High Priestess","☾","直感・知性・静けさ","神経質・頑なさ・隠しごと","答えは静かな場所で見つかります。焦らず、内なる声に耳を澄ませて。","考えすぎて心が固くなっています。完璧を求めず、人に頼ることも大切です。"],
@@ -240,7 +306,96 @@ const CARDS = [
   ["XIX","太陽","The Sun","☉","成功・喜び・生命力","不調・延期・過信","明るいエネルギーに満ちています。素直に喜び、楽しむことが成功を呼びます。","少し曇っていますが、太陽は消えていません。無理せず、調子が戻るのを待って。"],
   ["XX","審判","Judgement","⊕","復活・目覚め・決断","後悔・先延ばし・やり残し","眠っていた想いや可能性がよみがえります。呼びかけに応えるときです。","過去を悔やんで足が止まっています。今からでも遅くはありません。"],
   ["XXI","世界","The World","◎","完成・達成・統合","未完成・中途半端・あと一歩","ひとつの物語が美しく完結します。達成を味わい、次の旅へ。","ゴールはすぐそこです。最後の仕上げを丁寧に終わらせましょう。"],
-].map(([num, ja, en, glyph, upKw, revKw, upMsg, revMsg]) => ({ num, ja, en, glyph, upKw, revKw, upMsg, revMsg }));
+].map(([num, ja, en, glyph, upKw, revKw, upMsg, revMsg]) => ({ num, ja, en, glyph, upKw, revKw, upMsg, revMsg, suit: "major" }));
+
+const SUIT_ICONS = {
+  wands: '<svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><line x1="20" y1="6" x2="20" y2="56"/><path d="M20 15q8-2 10-8M20 25q-8-2-10-8M20 35q8-2 10-8"/></svg>',
+  cups: '<svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 10h24q0 19-12 21Q8 29 8 10z"/><path d="M20 31v15M12 53h16M14 46h12"/></svg>',
+  swords: '<svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M20 4l4 8v29h-8V12z"/><path d="M8 41h24M20 41v12M16 56h8"/></svg>',
+  pentacles: '<svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="30" r="15"/><polygon points="20,18 27.05,39.71 8.59,26.29 31.41,26.29 12.95,39.71"/></svg>',
+};
+const SUITS = [
+  { key: "wands", ja: "ワンド", en: "Wands", theme: "情熱・行動" },
+  { key: "cups", ja: "カップ", en: "Cups", theme: "感情・愛情" },
+  { key: "swords", ja: "ソード", en: "Swords", theme: "思考・試練" },
+  { key: "pentacles", ja: "ペンタクル", en: "Pentacles", theme: "お金・現実" },
+];
+const RANKS = [
+  ["ACE","エース","Ace"],["II","2","Two"],["III","3","Three"],["IV","4","Four"],["V","5","Five"],
+  ["VI","6","Six"],["VII","7","Seven"],["VIII","8","Eight"],["IX","9","Nine"],["X","10","Ten"],
+  ["PAGE","ペイジ","Page"],["KNIGHT","ナイト","Knight"],["QUEEN","クイーン","Queen"],["KING","キング","King"],
+];
+// [正位置キーワード, 逆位置キーワード, 正位置メッセージ, 逆位置メッセージ]（エース〜キングの順）
+const MINOR_TEXT = {
+  wands: [
+    ["情熱の始まり・創造力・やる気","空回り・やる気の低下・出遅れ","新しい情熱の火がつきました。思い立ったら動き出しましょう。","気持ちが燃え上がりきりません。小さな一歩から火を育てて。"],
+    ["計画・展望・決断","迷い・計画倒れ・不安","手の中の世界を広げる計画を立てるとき。視野を遠くへ。","先を考えすぎて動けません。まず方向をひとつ決めましょう。"],
+    ["発展・見通し・協力","遅れ・期待外れ・準備不足","蒔いた種が動き出しています。協力者とともに先へ進みましょう。","思ったより時間がかかっています。焦らず準備を見直して。"],
+    ["祝福・安定・くつろぎ","一時的な不和・落ち着かなさ","喜びを分かち合えるとき。頑張った自分をねぎらって。","安らぎが少し揺らいでいます。身近な人との時間を大切に。"],
+    ["競争・衝突・切磋琢磨","争いの回避・内輪もめ・妥協","意見がぶつかるのは成長のしるし。遠慮せず意見を出して。","争いを避けて本音を飲み込んでいませんか。"],
+    ["勝利・評価・自信","慢心・評価されない・遅れ","努力が認められます。胸を張って進みましょう。","評価が思うように得られません。周りへの感謝を忘れずに。"],
+    ["防衛・粘り強さ・立場を守る","弱気・押され気味・譲歩","不利に見えても立ち位置は有利です。信念を守り抜いて。","守りに疲れています。全部を抱えず、譲れるところは譲って。"],
+    ["スピード・急展開・知らせ","遅延・行き違い・焦り","物事が一気に進みます。流れに乗って素早く動いて。","連絡や予定の行き違いに注意。急ぐほど確認を丁寧に。"],
+    ["警戒・忍耐・最後の踏ん張り","疲労・疑心暗鬼・限界","ゴールは近いです。もうひと踏ん張りで乗り越えられます。","警戒しすぎて疲れています。休むことも前進のうちです。"],
+    ["重圧・責任過多・抱え込み","荷を下ろす・解放・限界を知る","抱えすぎていませんか。任せられることは人に任せましょう。","重荷を手放すタイミングです。何を残すか選び直して。"],
+    ["好奇心・良い知らせ・挑戦心","気まぐれ・未熟・知らせの遅れ","新しいことへのわくわくを大切に。まず試してみて。","興味が移りやすくなっています。ひとつに絞って続けてみて。"],
+    ["行動力・冒険・情熱的","せっかち・無謀・中断","思い切って飛び込むとき。勢いが道を切り開きます。","急ぎすぎて周りが見えていません。ペースを落として。"],
+    ["自信・明るさ・魅力","嫉妬・わがまま・気分の波","自分らしく輝くほど人が集まります。自信を持って。","感情に振り回されています。自分の機嫌を自分で取ってあげて。"],
+    ["リーダーシップ・ビジョン・決断力","独りよがり・横暴・短気","大きなビジョンを示し、人を導くときです。","自分のやり方を押しつけていませんか。周りの意見も聞いて。"],
+  ],
+  cups: [
+    ["愛の始まり・感情の満ち・喜び","すれ違い・満たされなさ・感情の空回り","心が満たされる出来事の予感。素直な気持ちを受け取って。","気持ちがうまく伝わらないとき。まず自分の心を満たしましょう。"],
+    ["相思相愛・パートナーシップ・和解","すれ違い・不均衡・誤解","心が通じ合う相手との縁が深まります。","気持ちのバランスが崩れています。対話で歩み寄って。"],
+    ["祝福・友情・楽しい集まり","浮かれすぎ・付き合い疲れ・三角関係","仲間と喜びを分かち合えるとき。楽しむことを自分に許して。","人付き合いに疲れていませんか。楽しさと休息の釣り合いを。"],
+    ["倦怠・物足りなさ・内省","新しい関心・停滞からの脱出","差し出されているものを見逃しているかも。視線を上げてみて。","退屈から抜け出すきっかけが来ています。"],
+    ["喪失・後悔・悲しみ","立ち直り・受容・希望の発見","失ったものに目が向いていますが、残っているものもあります。","悲しみが和らぎ始めています。振り返って、残ったものを見て。"],
+    ["懐かしさ・純粋さ・思い出","過去への執着・成長のとき","昔の縁や純粋な気持ちが助けになります。","過去にとらわれすぎています。今の自分を生きましょう。"],
+    ["夢想・選択肢の多さ・迷い","現実を見る・決断・目が覚める","魅力的な選択肢に目移りしています。本当に欲しいものは何でしょう。","幻想から覚めて、現実的な選択ができるときです。"],
+    ["離脱・新たな探求・方向転換","未練・踏み切れない・迷い","満たされない場所を離れ、心が求めるものを探しに行くとき。","離れるべきか迷っています。心の声に正直に。"],
+    ["願望成就・満足・喜び","慢心・物足りなさ・欲張り","願いが叶う暗示。満たされた気持ちを味わって。","満足しきれません。何が本当の幸せか見つめ直して。"],
+    ["家庭円満・幸福・調和","家庭内の不和・理想と現実の差","大切な人と温かな時間を過ごせます。","理想の形にこだわりすぎていませんか。今ある幸せに目を向けて。"],
+    ["優しさ・感受性・うれしい知らせ","甘え・感情的・気まぐれ","素直な感受性が幸運を呼びます。","気分で動きがちです。気持ちを言葉にしてみて。"],
+    ["ロマンス・誘い・理想","優柔不断・口先だけ・逃避","心ときめく誘いや提案が届きます。","甘い言葉に流されないで。行動で確かめましょう。"],
+    ["思いやり・共感・包容力","感情に溺れる・依存・過敏","相手の気持ちに寄り添う優しさが力になります。","人の感情を背負いすぎています。自分を守る線引きを。"],
+    ["寛容・穏やかさ・感情の安定","感情の抑圧・気まぐれ・操作","落ち着いた心で人を受け止められます。","気持ちを押し込めていませんか。信頼できる人に打ち明けて。"],
+  ],
+  swords: [
+    ["決断・突破・明晰さ","混乱・誤った判断・行き過ぎ","迷いを断ち切る鋭いひらめき。真実を見極めて。","判断を急ぎすぎています。情報を整理してから決めて。"],
+    ["膠着・葛藤・保留","決断・情報の解禁・混乱","決めかねて目を閉じています。心の声を聞いてみて。","状況が動き出します。見て見ぬふりをやめるときです。"],
+    ["心の痛み・別れ・悲しみ","回復・痛みの和らぎ・許し","傷ついた心を認めてあげて。痛みは癒えていきます。","傷が少しずつ回復しています。自分を許してあげて。"],
+    ["休息・回復・充電","再始動・休みすぎ・焦り","今は休むとき。しっかり充電すると次が楽になります。","回復してきました。少しずつ動き出しましょう。"],
+    ["対立・自分本位な勝利・後味の悪さ","和解・後悔・争いの終わり","勝ち負けにこだわると、大切なものを失うかもしれません。","争いを終わらせるきっかけが来ています。"],
+    ["移行・回復への旅・静かな前進","停滞・過去から離れられない","困難な場所から穏やかな場所へ移っていきます。","まだ離れきれません。荷物を減らして出発の準備を。"],
+    ["策略・ずる賢さ・単独行動","正直さ・発覚・計画の見直し","正面突破以外の方法もあります。ただし誠実さは忘れずに。","隠しごとはほころびます。正直に向き合うのが近道です。"],
+    ["束縛・思い込み・身動きが取れない","解放・視野が広がる・自由","縛っているのは自分の思い込みかもしれません。","縛りがほどけ始めています。一歩踏み出してみて。"],
+    ["不安・悪夢・心配のしすぎ","不安の軽減・希望・相談","夜の心配は大きく見えるもの。紙に書き出すと軽くなります。","不安が和らいでいきます。誰かに話してみて。"],
+    ["どん底・終わり・区切り","回復の兆し・最悪からの脱出","これ以上は悪くなりません。ここから夜明けが始まります。","最悪の時期を抜けつつあります。"],
+    ["好奇心・警戒・情報収集","噂・詮索・軽率な発言","情報を集め、よく観察するときです。","言葉が鋭くなっていませんか。噂話に注意。"],
+    ["迅速・果敢・まっすぐな行動","性急・攻撃的・無計画","思い立ったらすぐ動くことで道が開けます。","勢い任せでぶつかりがち。言葉選びは慎重に。"],
+    ["聡明・自立・率直","冷たさ・批判的・孤立","はっきり伝える誠実さが信頼を生みます。","厳しさが壁を作っています。少し柔らかく。"],
+    ["論理・公正・判断力","冷酷・独断・頭でっかち","感情に流されず、筋道立てて判断できます。","理屈で人を追い詰めていませんか。"],
+  ],
+  pentacles: [
+    ["実りの始まり・好機・豊かさ","機会損失・浪費・不安定","現実的なチャンスが手に入ります。しっかりつかんで。","チャンスを見送りがちです。足元の機会を見直して。"],
+    ["両立・柔軟さ・やりくり","手一杯・バランスの崩れ・混乱","複数のことを器用にこなせるとき。楽しみながら。","抱えすぎてバランスが崩れています。優先順位をつけて。"],
+    ["技能・協力・評価","連携不足・未熟・手抜き","力を合わせると良いものが作れます。腕が認められます。","チームの足並みがそろいません。役割を確認して。"],
+    ["安定・堅実・保守","執着・けち・変化を恐れる","守りを固め、手堅く進めるときです。","握りしめすぎています。少し手放すと流れが生まれます。"],
+    ["困窮・孤立・不安","回復・支援・光が差す","困ったときは助けを求めて。手は近くにあります。","厳しい時期を抜け、支えが見つかります。"],
+    ["分かち合い・援助・バランス","不公平・見返りを求める・依存","与えることと受け取ることの循環が生まれます。","貸し借りの釣り合いに注意しましょう。"],
+    ["成長待ち・見直し・忍耐","焦り・成果が出ない・努力の空回り","育てたものが実るまであと少し。手入れを続けて。","成果を急ぎすぎています。やり方を見直してみて。"],
+    ["修練・勤勉・技術の向上","単調・手抜き・完璧主義","こつこつ積み上げる努力が確かな力になります。","作業に追われて目的を見失っていませんか。"],
+    ["自立・余裕・豊かさ","依存・見栄・浪費","自分の力で得た豊かさを楽しめるときです。","見栄や浪費に注意。本当の満足を大切に。"],
+    ["繁栄・家族・継承","家族の問題・財産のトラブル・停滞","長く続く豊かさと安定が手に入ります。","お金や家族のことで揉めやすいとき。話し合いを。"],
+    ["学び・誠実さ・地道な一歩","怠け・非現実的・学びの停滞","新しい学びや仕事の芽が出ます。まじめに取り組んで。","気が散っています。目標を小さく区切って。"],
+    ["着実・責任感・忍耐","停滞・頑固・退屈","遅くても確実に進む姿勢が成果を生みます。","慎重すぎて止まっています。少し動いてみて。"],
+    ["包容力・現実的な優しさ・豊かさ","心配性・物への執着・自己犠牲","暮らしを整え、人を支える力があります。","尽くしすぎて疲れています。自分にも手間をかけて。"],
+    ["成功・経済力・安定","物欲・頑固・権威主義","現実的な判断で確かな成功をつかめます。","お金や地位にこだわりすぎていませんか。"],
+  ],
+};
+const MINOR = SUITS.flatMap(s => RANKS.map(([num, rja, ren], i) => {
+  const [upKw, revKw, upMsg, revMsg] = MINOR_TEXT[s.key][i];
+  return { num, ja: `${s.ja}の${rja}`, en: `${ren} of ${s.en}`, glyph: SUIT_ICONS[s.key], upKw, revKw, upMsg, revMsg, suit: s.key, suitTheme: s.theme };
+}));
 
 const POSITIONS = { 1: ["今日のカード"], 3: ["過去", "現在", "未来"] };
 
@@ -248,28 +403,37 @@ const table = document.getElementById("table");
 const reading = document.getElementById("reading");
 const hint = document.getElementById("hint");
 const useReversed = document.getElementById("use-reversed");
+const useMinor = document.getElementById("use-minor");
+const question = document.getElementById("question");
+const deckCount = document.getElementById("deck-count");
 let count = 3;
 let drawn = [];
+let oracleCtl = null;
+
+const samplePromise = window.claude?.use ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
 
 function load(key, fallback) { try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function rand(n) { const b = new Uint32Array(1); crypto.getRandomValues(b); return b[0] % n; }
 
 function shuffle(arr) {
   const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const buf = new Uint32Array(1); crypto.getRandomValues(buf);
-    const j = buf[0] % (i + 1);
-    [a[i], a[j]] = [a[j], a[i]];
-  }
+  for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 
+function deck() { return useMinor.checked ? MAJOR.concat(MINOR) : MAJOR; }
+
 function deal() {
-  const pick = shuffle(CARDS).slice(0, count);
-  drawn = pick.map((card, i) => ({
+  oracleCtl?.abort();
+  oracleCtl = null;
+  const cards = deck();
+  deckCount.textContent = `${cards.length}枚のデッキから${count}枚を引きます`;
+  drawn = shuffle(cards).slice(0, count).map((card, i) => ({
     card,
     pos: POSITIONS[count][i],
-    reversed: useReversed.checked && (crypto.getRandomValues(new Uint8Array(1))[0] & 1) === 1,
+    reversed: useReversed.checked && rand(2) === 1,
     open: false,
   }));
   table.innerHTML = "";
@@ -277,14 +441,15 @@ function deal() {
   drawn.forEach((d, i) => {
     const slot = document.createElement("div");
     slot.className = "slot";
+    const glyph = d.card.suit === "major" ? `${d.card.glyph}︎` : d.card.glyph;
     slot.innerHTML = `
       <span class="pos">${d.pos}</span>
-      <button type="button" class="card${d.reversed ? " reversed" : ""}" id="card-${i}" aria-label="${d.pos}のカードをめくる">
+      <button type="button" class="card suit-${d.card.suit}${d.reversed ? " reversed" : ""}" id="card-${i}" aria-label="${d.pos}のカードをめくる">
         <span class="card-inner">
           <span class="face back"></span>
           <span class="face front"><span class="front-body">
             <span class="numeral">${d.card.num}</span>
-            <span class="glyph">${d.card.glyph}︎</span>
+            <span class="glyph">${glyph}</span>
             <span class="names"><span class="ja">${d.card.ja}</span><br><span class="en">${d.card.en}</span></span>
           </span></span>
         </span>
@@ -293,7 +458,6 @@ function deal() {
     table.appendChild(slot);
   });
   hint.hidden = false;
-  hint.textContent = "カードをタップしてめくってください";
 }
 
 function reveal(i) {
@@ -308,7 +472,8 @@ function reveal(i) {
 
 function renderReading() {
   const opened = drawn.filter(d => d.open);
-  hint.hidden = opened.length === drawn.length;
+  const all = opened.length === drawn.length;
+  hint.hidden = all;
   reading.innerHTML = opened.length ? `<h2>リーディング</h2>` : "";
   drawn.forEach(d => {
     if (!d.open) return;
@@ -318,13 +483,160 @@ function renderReading() {
     div.innerHTML = `
       <div class="head">
         <span class="pos">${d.pos}</span>
-        <span class="title">${c.num}　${c.ja}</span>
+        <span class="title">${c.ja}</span>
         <span class="pill ${d.reversed ? "down" : "up"}">${d.reversed ? "逆位置" : "正位置"}</span>
       </div>
       <div class="kw">${d.reversed ? c.revKw : c.upKw}</div>
       <p>${d.reversed ? c.revMsg : c.upMsg}</p>`;
     reading.appendChild(div);
   });
+  if (all) renderOracle();
+}
+
+/* ---------- 悩みに沿ったリーディング ---------- */
+
+function renderOracle() {
+  const q = question.value.trim();
+  const box = document.createElement("section");
+  box.className = "oracle";
+  box.innerHTML = `
+    <div class="label">あなたの悩みへのリーディング</div>
+    ${q ? `<p class="q">${esc(q)}</p>` : `<p class="q">悩みが空欄のため、全体運として読み解きます。</p>`}
+    <div class="actions">
+      <button type="button" class="btn" id="oracle-go">悩みに沿って読み解く</button>
+      <span class="status" id="oracle-status"></span>
+    </div>
+    <div class="text" id="oracle-text"></div>`;
+  reading.appendChild(box);
+  box.querySelector("#oracle-go").addEventListener("click", runOracle);
+}
+
+function spreadSummary() {
+  return drawn.map(d => {
+    const c = d.card;
+    const kind = c.suit === "major" ? "大アルカナ" : `小アルカナ・${c.suitTheme}のスート`;
+    return `- ${d.pos}：${c.ja}（${c.en}／${kind}）${d.reversed ? "逆位置" : "正位置"}。キーワード：${d.reversed ? c.revKw : c.upKw}`;
+  }).join("\n");
+}
+
+function buildPrompt(q) {
+  return `あなたは経験豊かで、相談者に温かく寄り添うタロット占い師です。
+次の相談とスプレッドを読み、相談内容に具体的に結びつけたリーディングを日本語で書いてください。
+
+# 相談内容
+${q || "（特定の悩みはなし。いまの全体的な流れを知りたい）"}
+
+# スプレッド（${drawn.length === 1 ? "1枚引き" : "3枚引き：過去・現在・未来"}）
+${spreadSummary()}
+
+# 書き方
+- 各カードごとに、見出し行「【${drawn[0].pos}】カード名（正位置／逆位置）」を置き、その下に相談内容に即した解釈を2〜3文。
+- 続けて「【全体のメッセージ】」で、カード同士のつながりから見える流れを3〜4文。
+- 最後に「【アドバイス】」で、今日から試せる具体的な行動を2〜3個、各行の先頭に「・」。
+- Markdown記号（#、*、**）は使わず、見出しは【】だけで示す。
+- 不安をあおる断定は避け、前向きで現実的な言葉にする。健康・法律・お金の問題では断定的な助言をせず、必要に応じて専門家への相談を勧める。
+- 全体で400〜650字程度。前置きや締めのあいさつは不要。`;
+}
+
+function paint(target, text) {
+  target.replaceChildren();
+  for (const line of text.split(/\n+/)) {
+    const t = line.trim();
+    if (!t) continue;
+    const p = document.createElement("p");
+    if (/^【.+】/.test(t)) p.className = "h";
+    p.textContent = t;
+    target.appendChild(p);
+  }
+}
+
+async function runOracle() {
+  const btn = document.getElementById("oracle-go");
+  const status = document.getElementById("oracle-status");
+  const out = document.getElementById("oracle-text");
+  const q = question.value.trim();
+  btn.disabled = true;
+  status.className = "status dots";
+  status.textContent = "カードの声を聴いています";
+  out.replaceChildren();
+
+  const sample = await samplePromise;
+  if (!sample) {
+    status.className = "status";
+    status.textContent = "簡易リーディング（AIを使わず、カードの意味から組み立てています）";
+    paint(out, localReading(q));
+    btn.disabled = false;
+    btn.textContent = "もう一度読み解く";
+    return;
+  }
+  const ctl = new AbortController();
+  oracleCtl = ctl;
+  try {
+    const { text } = await sample(buildPrompt(q), {
+      signal: ctl.signal,
+      cache: false,
+      onText: ({ text }) => { status.className = "status"; status.textContent = "Claude によるリーディング"; paint(out, text); },
+    });
+    paint(out, text);
+    status.className = "status";
+    status.textContent = "Claude によるリーディング";
+  } catch (e) {
+    if (e?.code === "cancelled") return;
+    status.className = "status";
+    const why = {
+      not_granted: "AIの利用が許可されなかったため、",
+      rate_limited: "AIが混み合っているため、",
+    }[e?.code] || "AIのリーディングを取得できなかったため、";
+    status.textContent = `${why}カードの意味から組み立てた簡易リーディングを表示しています`;
+    paint(out, localReading(q));
+  } finally {
+    if (oracleCtl === ctl) oracleCtl = null;
+    btn.disabled = false;
+    btn.textContent = "もう一度読み解く";
+  }
+}
+
+const TOPICS = [
+  { key: "恋愛", re: /恋|好き|片思い|片想い|彼氏|彼女|元彼|元カノ|復縁|結婚|婚活|告白|デート|パートナー|夫|妻|浮気|別れ/,
+    up: "相手との関係は、あなたが素直な気持ちを見せるほど温まっていきます。", down: "相手の気持ちを決めつけず、まず自分がどうしたいかを確かめることが先です。" },
+  { key: "仕事", re: /仕事|転職|職場|上司|部下|同僚|会社|就職|就活|キャリア|昇進|退職|業務|プロジェクト|起業|副業/,
+    up: "仕事では、今の手応えを信じて一歩前に出ることで評価につながります。", down: "仕事では、焦って決めるより、条件と本音を書き出して整理する時間をとりましょう。" },
+  { key: "人間関係", re: /友達|友人|人間関係|家族|親|母|父|子ども|子供|兄|姉|弟|妹|ママ友|近所|付き合い|嫌われ/,
+    up: "人との関係は、小さな感謝をことばにすることで、さらに良い方向へ進みます。", down: "人との距離感を見直すときです。無理に合わせず、心地よい距離を選んで大丈夫です。" },
+  { key: "お金", re: /お金|収入|貯金|借金|ローン|投資|給料|節約|家計|出費|支払/,
+    up: "お金の面では、堅実な計画がそのまま安心につながります。", down: "お金の面では、気持ちが不安なときほど大きな決断を避け、数字を確認しましょう。" },
+  { key: "健康", re: /健康|体調|病気|眠れ|睡眠|ストレス|疲れ|ダイエット|メンタル|不安で/,
+    up: "心と体は回復に向かう力を持っています。休息とリズムを大切に。", down: "がんばりすぎのサインが出ています。気になることは専門家にも相談してください。" },
+  { key: "学び", re: /勉強|試験|受験|資格|学校|進学|進路|大学|留学|成績/,
+    up: "学びは積み重ねた分だけ実を結びます。今のペースを信じて。", down: "やり方を少し変えるだけで伸びる時期です。苦手から逃げず、小さく取り組んで。" },
+];
+
+function localReading(q) {
+  const topic = TOPICS.find(t => t.re.test(q));
+  const lines = [];
+  lines.push(q
+    ? `「${q.length > 60 ? q.slice(0, 60) + "…" : q}」というご相談を、${topic ? topic.key + "の視点から" : "カードの流れから"}読み解きます。`
+    : "いまのあなたの全体的な流れを読み解きます。");
+  const frame = { "過去": "これまでの流れには", "現在": "今のあなたには", "未来": "この先には", "今日のカード": "今日のあなたには" };
+  for (const d of drawn) {
+    const c = d.card;
+    lines.push(`【${d.pos}】${c.ja}（${d.reversed ? "逆位置" : "正位置"}）`);
+    const kw = (d.reversed ? c.revKw : c.upKw).split("・")[0];
+    lines.push(`${frame[d.pos]}「${kw}」の気配があります。${d.reversed ? c.revMsg : c.upMsg}`);
+  }
+  const ups = drawn.filter(d => !d.reversed).length;
+  const majors = drawn.filter(d => d.card.suit === "major").length;
+  lines.push("【全体のメッセージ】");
+  let tone = ups === drawn.length ? "カードは全体として追い風を示しています。"
+    : ups === 0 ? "今は立ち止まって見直す時期だとカードは告げています。"
+    : "良い流れと課題が混ざり合っています。うまくいっている部分を足場にしましょう。";
+  if (majors >= 2) tone += "大アルカナが多く出ており、人生の節目といえる大切なテーマです。";
+  const last = drawn[drawn.length - 1];
+  lines.push(tone + (topic ? (ups * 2 >= drawn.length ? topic.up : topic.down) : ""));
+  lines.push("【アドバイス】");
+  lines.push(`・「${(last.reversed ? last.card.revKw : last.card.upKw).split("・")[0]}」を意識して、今日できる小さな行動をひとつ決める`);
+  lines.push("・気になっていることを紙に書き出し、事実と気持ちを分けてみる");
+  return lines.join("\n");
 }
 
 function setCount(n) {
@@ -340,7 +652,9 @@ document.getElementById("reveal-all").addEventListener("click", () => {
   drawn.forEach((_, i) => setTimeout(() => reveal(i), i * 250));
 });
 useReversed.checked = load("tarot-reversed", true);
+useMinor.checked = load("tarot-minor", true);
 useReversed.addEventListener("change", () => { save("tarot-reversed", useReversed.checked); deal(); });
+useMinor.addEventListener("change", () => { save("tarot-minor", useMinor.checked); deal(); });
 
 setCount(load("tarot-count", 3) === 1 ? 1 : 3);
 </script>
